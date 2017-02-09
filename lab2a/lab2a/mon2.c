@@ -46,14 +46,14 @@ int main(int argc, char **argv)
       exit(1);
     }else if(child == 0){
       /* Third step: Lets create the filter process - don't forget to connect to the pipe */
-      printf("procmon process \n");
-      execl("filter", "filter", NULL);
-      printf("child process execution \n");
+      printf("filter process \n");
+      int test = execl("filter", "filter", NULL);
+      printf("child process execution %d \n", test);
     }else{
       /* Fourth step: Lets create the procmon process - don't forget to connect to the pipe */
       printf("procmon process. \n");
-      execl("procmon", "procmon", NULL);
-      printf("Parent process execution \n");
+      int test2 = execl("procmon", "procmon", NULL);
+      printf("Parent process execution %d  \n",test2);
     }
 
 

@@ -31,7 +31,7 @@ int main(int argc, char **argv)
     char        statFile[BUFFSIZE];
     int         t;
 
-    if (argc != 2) 
+    if (argc != 2)
     {
         printf("Usage: procmon PID\n where PID is a process ID of a running process.\n");
         exit(-1);
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 
     printf("\n\n        Monitoring %s:\n\n", statFile);
     printf("Time        State           SysTm    UsrTm\n");
-    for(t=0; ;t++) 
+    for(t=0; ;t++)
     {
         if (getData(statFile, &data) == ERR1)
             exit(0);
@@ -53,28 +53,28 @@ int main(int argc, char **argv)
 
 /*--------------------------------------------------------------------------
 Function: getData
-Description:  This function reads the process state, its used system time 
-              and used user time from the specified statFile and fills the 
-	      specified data structure. If the file cannot be read (i.e. the 
-	      monitored process no longer exists, reurns NULL pointer, 
+Description:  This function reads the process state, its used system time
+              and used user time from the specified statFile and fills the
+	      specified data structure. If the file cannot be read (i.e. the
+	      monitored process no longer exists, reurns NULL pointer,
 	      otherwise returns pointer to the procided data structure.
 --------------------------------------------------------------------------*/
-int getData(char *statFile, DataStruct *data) 
+int getData(char *statFile, DataStruct *data)
 {
     FILE *fp;
     char state;
 
     fp = fopen(statFile, "r");
-    if (!fp) 
+    if (!fp)
     {
-        printf("procmon: Cannot open %s, the monitored process is not running any more.\n", 
+        printf("procmon: Cannot open %s, the monitored process is not running any more.\n",
 	       statFile);
         return ERR1;
     }
     fscanf(fp, "%*s %*s %c %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %ld %ld",
         &state, &(data->userTime), &(data->sysTime));
 
-    switch(state) 
+    switch(state)
     {
         case 'R': data->state = "Running          "; break;
         case 'S': data->state = "Sleeping(memory) "; break;
