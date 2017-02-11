@@ -1,4 +1,6 @@
-import java.awt.*;     
+import java.awt.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /*-----------------------------------------------------------
  *
@@ -8,6 +10,7 @@ import java.awt.*;
 
 public class MBCanvas extends Canvas
 {
+  private static final long serialVersionUID = 42l;
    private MBGlobals mg;   // reference to global definitions
 
    public MBCanvas(MBGlobals mGlob)
@@ -33,24 +36,52 @@ public class MBCanvas extends Canvas
       MBPaint mbp;
       Rectangle nrect;
 
-      // Compute the maximum pixel values for hor (i) and vert (j) 
+      // Compute the maximum pixel values for hor (i) and vert (j)
       int maxi = mrect.x + mrect.width;
       int maxj = mrect.y + mrect.height;
 
       // Only when the square is small enough do we fill
-      if( (maxi - mrect.x) <= mg.minBoxSize)  
+      if( (maxi - mrect.x) <= mg.minBoxSize)
       {
+        mbp = new MBPaint(this, mg, mrect);
+
+        //part B is after this comment please comment before testing part A
+
+
+        ExecutorService executor = Executors.newFixedThreadPool(20);
             // Can now do the painting
-	    mbp = new MBPaint(this, mg, mrect);
-	    mbp.run();
+        executor.execute(mbp);
+
+
+
+
+
+
+      //Part A is after this comment uncomment to test
+
+/*
+        Runnable r1 = new Runnable(){
+
+          public void run(){
+    	        mbp.run();
+          }
+        };
+*/
+
+      //Thread thread1 = new Thread(r1);
+
+      //thread1.start();
+
+
+
 	    return;
       }
 
             // recursiverly compute the four subquadrants
       int midw = mrect.width/2;
-      int wover = mrect.width % 2;  // for widths not divisable by 2 
+      int wover = mrect.width % 2;  // for widths not divisable by 2
       int midh = mrect.height/2;
-      int hover = mrect.height % 2;  // for heights not divisable by 2 
+      int hover = mrect.height % 2;  // for heights not divisable by 2
 
       	    // First quadrant
       nrect = new Rectangle(mrect.x, mrect.y, midw, midh);

@@ -33,31 +33,62 @@ int main(int argc, char **argv)
 
     pid_t pid = getpid();
     printf("\n");
-    printf("this is the PID: %d \n", pid );
+    printf("mon2 PID: %d \n", pid );
     /* First Step: Create the first process to run the program from the command line */
-    execl(program, program, NULL);
-
-    pid_t parentPID = getppid();
-
-    printf("this is parent PID: %d \n", parentPID);
-    /* Second step: Create the pipe to be used for connecting procmon to filter */
-    pid_t child = fork();
-    printf("childPID: %d \n", child);
-    if (child == -1){
-      perror("fork");
-      exit(1);
-    }else if(child == 0){
-      printf("this is the childPID: %d \n", child);
-    }else{
-      //execl("filter", "filter", NULL);
-      printf("PID after filter execution %d \n", getpid());
+    pid_t programPID = fork();
+    if (programPID <0){
+      perror("program failed");
+    }else if(programPID == 0){
+      printf("running program \n");
+      if (execl(program, program, NULL) == -1){
+        perror("program failed");
+      }
     }
 
-    /* Third step: Lets create the filter process - don't forget to connect to the pipe */
+    /* Second step: Create the pipe to be used for connecting procmon to filter */
+    int fd[2];
+    int READ = 0;
+    int WRITE = 1;
+    pipe(fd);
 
-    /* Fourth step: Lets create the procmon process - don't forget to connect to the pipe */
-    //execl("procmon", "procmon", NULL);
+
+    pid_t filterPID = fork();
+    if (filterPID == -1){
+      perror("fork");
+    }else if(filterPID == 0){
+      /* Third step: Lets create the filter process - don't forget to connect to the pipe */
+      printf("running filter \n");
+      close(fd[WRITE]);
+      dup2(fd[READ],READ);
+      if (execl("filter", "filter", NULL) == -1){
+        perror("filter failed");
+      }
+      close(fd[READ]);
+    }
+      /* Fourth step: Lets create the procmon process - don't forget to connect to the pipe */
+
     printf("running procmon \n");
+
+    dup2(fd[WRITE], WRITE);
+
+    char programPIDString[9];
+    snprintf(programPIDString,10,"%d", programPID);
+    pid_t procmonPID = fork();
+    if (procmonPID == 0){
+      if (procmonPID < 0){
+          perror("procmon fork()");
+      }
+      else if (execl("procmon", "procmon", programPIDString, NULL) == -1){
+      perror("procmon failed");
+      }
+    }
+    close(fd[WRITE]);
+
+
+    printf("program PID: %d \n", programPID);
+    printf("filter PID: %d \n", filterPID);
+    printf("procmon PID: %d \n", procmonPID );
+
     /* Fifth step: Let things run for 20 seconds */
     sleep(20);
     /* Last step:
@@ -65,7 +96,10 @@ int main(int argc, char **argv)
        2. Sleep for 2 seconds
        3. Kill the procmon and filter processes
     */
-
+    kill(programPID, SIGKILL);
+    sleep(2);
+    kill(filterPID, SIGKILL);
+    kill(procmonPID, SIGKILL);
 
     return(0);  /* All done */
 }

@@ -1,4 +1,4 @@
-import javax.swing.*;     
+import javax.swing.*;
 
 /*-------------------------------------------------
  * Set up a simple frame for displaying
@@ -6,6 +6,7 @@ import javax.swing.*;
  * ------------------------------------------------*/
 public class MBFrame extends JFrame
 {
+  private static final long serialVersionUID = 42l;
    private MBCanvas cv;
 
    public MBFrame(double ucx, double ucy,  // Upper left hand corner (real/imag)
